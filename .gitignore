@@ -1,0 +1,22 @@
+# --- Dependencias de Composer ---
+/vendor/
+
+# --- Pruebas Unitarias (PHPUnit) ---
+/.phpunit.result.cache
+/.phpunit.cache/
+/tests/_output/
+/tests/_support/_generated/
+
+# --- Configuración y Base de Datos ---
+.env
+*.db
+*.sqlite
+
+# --- Archivos de Sistema / IDE ---
+.vscode/
+.idea/
+.DS_Store
+thumbs.db
+
+# --- Logs ---
+*.log
