@@ -11,7 +11,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Registro - Gestión Administrativo</title>
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="<?= BASE_URL ?>css/style.css">
     </head>
     <body>
         <?php if (!empty($errors)): ?>
@@ -56,9 +56,9 @@
             </form>
 
             <div class="auth-footer">
-                ¿Ya tienes cuenta? <a href="index.php?view=login">Inicia sesión aquí</a>
+                <p>¿Ya tienes cuenta? <a href="<?= BASE_URL ?>login">Inicia sesión</a></p>
             </div>
         </div>
-        <script src="javascript/alerts.js"></script>
+        <script src="<?= BASE_URL ?>javascript/alerts.js"></script>
     </body>
 </html>

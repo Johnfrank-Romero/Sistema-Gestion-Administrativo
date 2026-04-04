@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Si el archivo o carpeta existe físicamente (como un .css o .jpg), ábrelo normalmente
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Si no existe, envía la petición al index.php
+    # QSA permite que sigan funcionando los parámetros tipo ?id=1
+    RewriteRule ^(.*)$ index.php [L,QSA]
+</IfModule>

@@ -13,7 +13,7 @@
         //Maneja la petición de registro desde el formulario//
         public function handleRegister(): void {
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                header('Location: index.php?view=registro');
+                header('Location: ' . BASE_URL . 'registro');
                 exit;
             }
 
@@ -27,7 +27,7 @@
 
                 if ($this->authService->register($user)) {
                     $_SESSION['success'] = "Registro exitoso. Ahora puedes iniciar sesión.";
-                    header('Location: index.php?view=login');
+                    header('Location: ' . BASE_URL . 'login');
                     exit;
                 }
             } catch (\InvalidArgumentException $e) {
@@ -39,18 +39,18 @@
                 } else {
                     $_SESSION['errors'] = [$e->getMessage()];
                 }
-                header('Location: index.php?view=registro');
+                header('Location: ' . BASE_URL . 'registro');
                 exit;
             } catch (\Exception $e) {
                 $_SESSION['error'] = "Error inesperado, intente más tarde.";
-                header('Location: index.php?view=registro');
+                header('Location: ' . BASE_URL . 'registro');
                 exit;
             }
         }
         //Maneja la peticion de inicio de sesion desde el formulario//
         public function handleLogin(): void {
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                header('Location: index.php?view=login');
+                header('Location: ' . BASE_URL . 'login');
                 exit;
             }
 
@@ -59,18 +59,18 @@
             $user = $this->authService->login($email, $password);
 
             if ($user) {
-                header('Location: index.php?view=dashboard');
+                header('Location: ' . BASE_URL . 'dashboard');
                 exit;
             } else {
                 $_SESSION['error'] = "El correo o la contraseña son incorrectos.";
-                header('Location: index.php?view=login');
+                header('Location: ' . BASE_URL . 'login');
                 exit;
             }
         }
 
         public function handleLogout(): void {
             AuthService::logout();
-            header('Location: index.php?view=login');
+            header('Location: ' . BASE_URL . 'login');
             exit;
         }
     }

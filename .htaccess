@@ -1,0 +1,16 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. Prohibir el listado de archivos en carpetas (Seguridad)
+    Options -Indexes
+
+    # 2. Redirigir todo el tráfico a la carpeta /public/ de forma invisible
+    RewriteRule ^$ public/ [L]
+    RewriteRule (.*) public/$1 [L]
+</IfModule>
+
+# Bloquear acceso directo a archivos sensibles
+<FilesMatch "^\.env|composer\.(json|lock)|phpunit\.xml">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

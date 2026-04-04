@@ -12,7 +12,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Login - Gestión Administrativo</title>
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="<?= BASE_URL ?>css/style.css">
     </head>
     <body>
         <?php if ($error): ?>
@@ -43,9 +43,9 @@
             </form>
 
             <div class="auth-footer">
-                ¿No tienes cuenta? <a href="index.php?view=registro">Regístrate aquí</a>
+                <p>¿No tienes cuenta? <a href="<?= BASE_URL ?>registro">Regístrate aquí</a></p>
             </div>
         </div>
-        <script src="javascript/alerts.js"></script>
+        <script src="<?= BASE_URL ?>javascript/alerts.js"></script>
     </body>
 </html>
