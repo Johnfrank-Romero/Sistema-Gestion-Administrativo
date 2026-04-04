@@ -4,7 +4,7 @@
     return [
         'host'    => 'localhost',
         'db'      => 'collection_management',
-        'user'    => 'phpmyadmin', //Ajustar//
-        'pass'    => '2605140807pc', //Ajustar//
+        'user'    => 'root', //Ajustar//
+        'pass'    => '', //Ajustar//
         'charset' => 'utf8mb4',
     ];
