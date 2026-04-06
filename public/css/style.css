@@ -10,11 +10,10 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     margin: 0;
+    display: flex;
+    flex-direction: column; 
+    min-height: 100vh;
 }
 
 .login-container {
@@ -24,6 +23,7 @@ body {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     width: 100%;
     max-width: 400px;
+    margin: auto;
 }
 
 .login-container h2 {
@@ -137,4 +137,18 @@ body {
 
 .floating-alert li {
     margin-bottom: 3px;
+}
+
+.main-wrapper {
+    flex: 1; /*Empuja el footer hacia abajo*/
+    display: flex;
+    justify-content: center; /*Centra el login horizontalmente*/
+    align-items: center;
+}
+
+.main-footer {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--primary-color);
 }
