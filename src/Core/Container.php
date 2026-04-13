@@ -4,6 +4,7 @@
     use App\DAO\UserDAO;
     use App\Services\AuthService;
     use App\Controllers\AuthController;
+    use App\Controllers\UserController;
     use App\Database\Connection; 
     use PDO;
     use Exception;
@@ -23,7 +24,15 @@
         }
 
         public static function getAuthController(): AuthController {
-            return new AuthController(new AuthService(new UserDAO(self::getDb())));
+            $db = self::getDb();
+            $userDao = new UserDAO($db);
+            $authService = new AuthService($userDao);
+            
+            return new AuthController($authService, $userDao);
+        }
+
+        public static function getUserController(): UserController {
+            return new UserController(new UserDAO(self::getDb()));
         }
     }
 ?>

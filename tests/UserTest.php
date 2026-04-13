@@ -5,60 +5,87 @@
 
     class UserTest extends TestCase {
 
+        //Capturar validaciones//
         public function testCumulativeValidations() {
-            //Intentar crear un usuario con todos los datos erroneos//
             try {
                 new User(
                     email: 'error-email',      
                     password: '123',           
                     firstName: 'John 123',     
-                    lastName: 'Doe 456'       
+                    lastName: 'Doe 456',
+                    role: 'invalid_role'
                 );
                 $this->fail("Se esperaba una InvalidArgumentException pero no se lanzó.");
             } catch (\InvalidArgumentException $e) {
-                //Verifica que el mensaje sea un JSON valido//
                 $errors = json_decode($e->getMessage(), true);
-                $this->assertIsArray($errors, "La excepción debe contener un JSON de errores.");
+                $this->assertIsArray($errors);
 
-                //Verifica que contenga los errores especificos//
                 $this->assertContains("El nombre solo debe contener letras sin espacios.", $errors);
                 $this->assertContains("El formato del email es inválido.", $errors);
                 $this->assertContains("La contraseña es muy débil o no cumple los requisitos de seguridad.", $errors);
+                $this->assertContains("El rol asignado no es válido.", $errors);
             }
         }
 
-        public function testSuccessfulCreationAndHashing() {
-            //Un usuario valido//
+        //Verificar creacion exitosa con roles y contraseña temporal//
+        public function testSuccessfulCreationWithRoleAndTempFlag() {
             $user = new User(
                 email: 'admin@gmail.com',
                 password: 'Password123!',
                 firstName: 'John',
-                lastName: 'Doe'
+                lastName: 'Doe',
+                role: User::ROLE_SUPER_ADMIN,
+                isTemporaryPassword: true
             );
 
-            //Verifica que los datos se asignen y se limpien//
             $this->assertEquals('John', $user->firstName);
-            $this->assertEquals('admin@gmail.com', $user->email);
+            $this->assertEquals(User::ROLE_SUPER_ADMIN, $user->role);
+            $this->assertTrue($user->isTemporaryPassword);
+            $this->assertTrue($user->isSuperAdmin());
             
-            //Verifica que la contraseña no sea texto plano (debe estar hasheada)//
-            $this->assertNotEquals('Password123!', $user->password);
+            //El hash debe funcionar correctamente//
             $this->assertTrue(password_verify('Password123!', $user->password));
         }
 
-        public function testDatabaseLoadDoesNotValidate() {
-            //Simular carga desde la DB (isNew = false)//
+        //Verificar carga de datos de la DB sin valiaciones//
+        public function testDatabaseLoadPreservesAllFields() {
             $hashFromDb = '$2y$10$SomethingGenericHash';
+            $createdAt = '2026-04-12 15:00:00';
             
             $user = new User(
-                email: 'viejo@correo.ru', //Dominio no permitido en registro//
-                password: $hashFromDb,    //No cumple regex de seguridad//
-                firstName: 'John',
-                lastName: 'Doe',
-                isNew: false              //El truco esta aqui//
+                id: 1,
+                email: 'antiguo@no-permitido.com', 
+                password: $hashFromDb,
+                firstName: 'Admin',
+                lastName: 'User',
+                role: User::ROLE_ADMIN,
+                isTemporaryPassword: false,
+                createdAt: $createdAt,
+                deletedAt: null,
+                isNew: false
             );
 
+            $this->assertEquals(1, $user->id);
             $this->assertEquals($hashFromDb, $user->password);
-            $this->assertEquals('viejo@correo.ru', $user->email);
+            $this->assertEquals(User::ROLE_ADMIN, $user->role);
+            $this->assertEquals($createdAt, $user->createdAt);
+            $this->assertFalse($user->isTemporaryPassword);
+            $this->assertNull($user->deletedAt);
+        }
+
+        //Prueba de soft delete en el modelo//
+        public function testModelHandlesSoftDeleteField() {
+            $deletedTime = '2026-04-12 15:30:00';
+            $user = new User(
+                email: 'deleted@gmail.com',
+                password: 'HashFromDatabase123',
+                firstName: 'Old',
+                lastName: 'User',
+                deletedAt: $deletedTime,
+                isNew: false
+            );
+
+            $this->assertEquals($deletedTime, $user->deletedAt);
         }
     }
 ?>

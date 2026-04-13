@@ -4,21 +4,29 @@
     use InvalidArgumentException;
 
     class User {
+        // Constantes para roles//
+        const ROLE_SUPER_ADMIN = 'super_admin';
+        const ROLE_ADMIN = 'admin';
+
         public function __construct(
             public ?int $id = null,
             public string $email = '',
             public string $password = '',
             public string $firstName = '',
             public string $lastName = '',
+            public string $role = self::ROLE_ADMIN,
+            public bool $isTemporaryPassword = false,
+            public ?string $createdAt = null,
+            public ?string $deletedAt = null,
             bool $isNew = true
         ) {
             if ($isNew) {
                 $errors = [];
 
                 //Sanitizacion//
-                $firstName = mb_convert_case(trim($firstName), MB_CASE_TITLE, "UTF-8");
-                $lastName = mb_convert_case(trim($lastName), MB_CASE_TITLE, "UTF-8");
-                $email = strtolower(trim($email));
+                $this->firstName = mb_convert_case(trim($firstName), MB_CASE_TITLE, "UTF-8");
+                $this->lastName = mb_convert_case(trim($lastName), MB_CASE_TITLE, "UTF-8");
+                $this->email = strtolower(trim($email));
 
                 //Validaciones//
                 if (!preg_match('/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$/', $firstName)) {
@@ -39,27 +47,53 @@
                     }
                 }
 
-                $pattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])\S{8,64}$/';
-                if (!preg_match($pattern, $password)) {
-                    $errors[] = "La contraseña es muy débil o no cumple los requisitos de seguridad.";
+                try {
+                    self::validatePasswordSecurity($password);
+                } catch (InvalidArgumentException $e) {
+                    //Decodificar JSON//
+                    $passErrors = json_decode($e->getMessage(), true);
+                    $errors = array_merge($errors, $passErrors);
                 }
 
-                //Si hay errores, se crea el formato JSON)//
+                if (!in_array($role, [self::ROLE_SUPER_ADMIN, self::ROLE_ADMIN])) {
+                    $errors[] = "El rol asignado no es válido.";
+                }
+
                 if (!empty($errors)) {
-                    if (!empty($errors)) {
-                        //El flag JSON_UNESCAPED_UNICODE evita el \u00e1//
-                        throw new \InvalidArgumentException(json_encode($errors, JSON_UNESCAPED_UNICODE));
-                    }
+                    throw new InvalidArgumentException(json_encode($errors, JSON_UNESCAPED_UNICODE));
                 }
 
-                $password = password_hash($password, PASSWORD_BCRYPT);
+                $this->password = password_hash($password, PASSWORD_BCRYPT);
+                $this->role = $role;
+                $this->isTemporaryPassword = $isTemporaryPassword;
+            }
+        }
+
+        public static function validatePasswordSecurity(string $password): void {
+            $errors = [];
+            if (strlen($password) < 8) {
+                $errors[] = "La contraseña debe tener al menos 8 caracteres.";
+            }
+            if (!preg_match('/[A-Z]/', $password)) {
+                $errors[] = "Debe incluir al menos una letra mayúscula.";
+            }
+            if (!preg_match('/[a-z]/', $password)) {
+                $errors[] = "Debe incluir al menos una letra minúscula.";
+            }
+            if (!preg_match('/\d/', $password)) {
+                $errors[] = "Debe incluir al menos un número.";
+            }
+            if (!preg_match('/[\W_]/', $password)) {
+                $errors[] = "Debe incluir al menos un carácter especial (ej: !@#$%).";
             }
 
-            //Asignacion//
-            $this->firstName = $firstName;
-            $this->lastName = $lastName;
-            $this->email = $email;
-            $this->password = $password;
+            if (!empty($errors)) {
+                throw new InvalidArgumentException(json_encode($errors, JSON_UNESCAPED_UNICODE));
+            }
+        }
+
+        public function isSuperAdmin(): bool {
+            return $this->role === self::ROLE_SUPER_ADMIN;
         }
     }
 ?>
