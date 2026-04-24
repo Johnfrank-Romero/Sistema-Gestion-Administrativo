@@ -25,7 +25,7 @@
             $user = $this->authService->login($email, $password);
 
             if ($user) {
-                // Si tiene contraseña temporal, obliga ir a cambio de clave//
+                //Si tiene contraseña temporal, obliga ir a cambio de clave//
                 if ($user->isTemporaryPassword) {
                     header('Location: ' . BASE_URL . 'change-password');
                 } else {

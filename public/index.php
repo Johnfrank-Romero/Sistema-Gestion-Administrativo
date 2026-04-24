@@ -10,7 +10,8 @@
 
     //Inicializar controladores//
     $authController = Container::getAuthController();
-    $userController = Container::getUserController(); 
+    $userController = Container::getUserController();
+    $ownerController = Container::getOwnerController();
 
     $requestUri = $_SERVER['REQUEST_URI'];
     $basePath = '/Gestion_Administrativo/public/';
@@ -31,10 +32,29 @@
             case 'login':
                 $authController->handleLogin();
                 break;
+            case 'update-password':
+                $authController->handleChangePassword();
+                break;
             case 'users/store':
                 $userController->store();
                 break;
+            case 'owners/store': 
+                $ownerController->store();
+                break;
+            case 'owners/update':
+                $ownerController->update((int)$_POST['id']);
+                break;
+            case 'rates/update':
+                $rate = $_POST['rate_value'] ?? null;
+                if ($rate) {
+                    $currencyService = Container::getCurrencyService();
+                    $currencyService->saveRate($rate, $_SESSION['user_id']);
+                    $_SESSION['success'] = "Tasa de cambio establecida en " . $rate . " Bs.";
+                }
+                header('Location: ' . BASE_URL . 'dashboard');
+                break;
         }
+        exit;
     }
 
     //Vistas y Acciones GET//
@@ -56,6 +76,12 @@
                 header('Location: ' . BASE_URL . 'login');
                 exit;
             }
+
+            if (isset($_SESSION['must_change_password']) && $_SESSION['must_change_password'] === true) {
+                $_SESSION['error'] = "Acceso denegado. Debes actualizar tu contraseña temporal primero.";
+                header('Location: ' . BASE_URL . 'change-password');
+                exit;
+            }
             include $viewPath . 'dashboard.php';
             break;
 
@@ -67,15 +93,17 @@
             include $viewPath . 'auth/change-password.php';
             break;
 
-        case 'update-password':
-            $authController->handleChangePassword();
-            break;
-
         case 'users':
             //Seguridad: Solo el Super Admin gestiona usuarios//
             if (!AuthService::isLoggedIn() || !AuthService::isSuperAdmin()) {
                 $_SESSION['error'] = "Acceso denegado.";
                 header('Location: ' . BASE_URL . 'dashboard');
+                exit;
+            }
+
+            if (isset($_SESSION['must_change_password']) && $_SESSION['must_change_password'] === true) {
+                $_SESSION['error'] = "Acceso denegado. Debes actualizar tu contraseña temporal primero.";
+                header('Location: ' . BASE_URL . 'change-password');
                 exit;
             }
 
@@ -104,13 +132,42 @@
             }
             break;
 
+        case 'owners': 
+            if (!AuthService::isLoggedIn()) {
+                header('Location: ' . BASE_URL . 'login');
+                exit;
+            }
+
+            switch ($subAction) {
+                case 'create':
+                    $content = $viewPath . 'owners/register.php';
+                    include $viewPath . 'dashboard.php';
+                    break;
+                case 'edit':
+                    if ($id) $ownerController->edit((int)$id);
+                    break;
+                case 'delete':
+                    //Solo Super_Admin puede hacer esta accion//
+                    if (!AuthService::isSuperAdmin()) {
+                        $_SESSION['error'] = "No tienes permisos para eliminar propietarios.";
+                        header('Location: ' . BASE_URL . 'owners');
+                        exit;
+                    }
+                    if ($id) $ownerController->delete((int)$id);
+                    break;
+                default:
+                    $ownerController->index();
+                    break;
+            }
+            break;
+
         case 'logout':
             $authController->handleLogout();
             break;
 
         default:
-            http_response_code(404);
-            include $viewPath . '404.php';
+            $errorController = new \App\Controllers\ErrorController();
+            $errorController->notFound();
             break;
     }
 ?>

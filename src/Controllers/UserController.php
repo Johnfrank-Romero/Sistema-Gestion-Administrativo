@@ -64,7 +64,7 @@
 
         //Soft delete en un usuario//
         public function delete(int $id): void {
-            // Evitar que el Super Admin se borre a si mismo//
+            //Evitar que el Super Admin se borre a si mismo//
             if ($id === $_SESSION['user_id']) {
                 $_SESSION['error'] = "No puedes eliminar tu propia cuenta de administrador.";
             } else {

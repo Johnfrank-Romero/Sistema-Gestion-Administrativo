@@ -2,9 +2,12 @@
 
     namespace App\Core;
     use App\DAO\UserDAO;
+    use App\DAO\OwnerDAO;
     use App\Services\AuthService;
+    use App\Services\CurrencyService;
     use App\Controllers\AuthController;
     use App\Controllers\UserController;
+    use App\Controllers\OwnerController;
     use App\Database\Connection; 
     use PDO;
     use Exception;
@@ -33,6 +36,14 @@
 
         public static function getUserController(): UserController {
             return new UserController(new UserDAO(self::getDb()));
+        }
+
+        public static function getCurrencyService(): CurrencyService {
+            return new CurrencyService(self::getDb());
+        }
+
+        public static function getOwnerController(): OwnerController {
+            return new OwnerController(new OwnerDAO(self::getDb()));
         }
     }
 ?>

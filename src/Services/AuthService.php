@@ -14,7 +14,7 @@
         public function login(string $email, string $password): ?User {
             $user = $this->userDao->findByEmail($email);
 
-            if ($user) {
+            if ($user && password_verify($password, $user->password)) {
                 if (session_status() === PHP_SESSION_NONE) session_start();
 
                 $_SESSION['user_id'] = $user->id;

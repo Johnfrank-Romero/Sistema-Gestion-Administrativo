@@ -1,30 +1,34 @@
-//Manejo de alertas flotantes//
 document.addEventListener('DOMContentLoaded', () => {
-    const alert = document.querySelector('.floating-alert');
+    //Selecciona todas las alertas//
+    const alerts = document.querySelectorAll('.floating-alert');
 
-    if (alert) {
+    alerts.forEach(alert => {
         //Cierre manual al hacer clic//
         alert.addEventListener('click', () => {
             removeAlert(alert);
         });
 
-        //Cierre automatico despues de 8 segundos//
+        //Cierre automatico despues de 6 segundos//
         setTimeout(() => {
             removeAlert(alert);
-        }, 8000);
-    }
+        }, 6000);
+    });
 });
 
 function removeAlert(element) {
-    if (!element) return;
+    if (!element || element.dataset.removing === "true") return;
+    element.dataset.removing = "true";
 
-    element.style.transition = "opacity 0.6s ease, transform 0.6s ease, filter 0.3s";
+    //Aplicar estilos de salida//
+    element.style.transition = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
     element.style.opacity = "0";
-    element.style.transform = "translateX(-50%) translateY(-20px)";
+    element.style.transform = "translateX(-50%) translateY(-30px) scale(0.9)";
+    element.style.filter = "blur(4px)";
 
+    //Eliminar el DOM cuando termina la transicion//
     setTimeout(() => {
         if (element.parentNode) {
             element.remove();
         }
-    }, 2000); //Margen para la transicion//
+    }, 600); 
 }

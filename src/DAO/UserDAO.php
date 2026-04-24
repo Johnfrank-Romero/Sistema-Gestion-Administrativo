@@ -130,7 +130,6 @@
                     ':id'       => $userId
                 ]);
             } catch (\PDOException $e) {
-                // En desarrollo, esto te ayudará a ver si algo falla con la DB
                 error_log("Error en UserDAO::updatePassword: " . $e->getMessage());
                 return false;
             }

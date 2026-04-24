@@ -1,74 +1,76 @@
-<div class="table-header">
-    <h2><i class="fa-solid fa-users"></i> Gestión de Usuarios Activos</h2>
-    <p>Administradores registrados que tienen acceso actual al sistema.</p>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-users text-primary me-2"></i>Gestión de Usuarios Activos</h2>
+        <p class="text-muted small mb-0">Administradores registrados con acceso actual al sistema.</p>
+    </div>
 </div>
 
-<?php if (isset($_SESSION['success']) && strpos($_SESSION['success'], 'Contraseña temporal') !== false): ?>
-    <div class="key-card">
-        <div>
-            <i class="fa-solid fa-circle-info"></i> 
-            <span><?= $_SESSION['success'] ?></span>
-        </div>
-        <small><i class="fa-solid fa-copy"></i> Copie esta clave ahora.</small>
-    </div>
-    <?php unset($_SESSION['success']); ?>
-<?php endif; ?>
-
-<table class="data-table">
-    <thead>
-        <tr>
-            <th><i class="fa-solid fa-user"></i> Nombre Completo</th>
-            <th><i class="fa-solid fa-envelope"></i> Correo Electrónico</th>
-            <th><i class="fa-solid fa-id-badge"></i> Rol</th>
-            <th><i class="fa-solid fa-calendar-day"></i> Estado</th>
-            <th style="text-align: center;">Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php if (empty($users)): ?>
+<div class="table-responsive shadow-sm rounded">
+    <table class="table table-hover align-middle bg-white mb-0">
+        <thead class="table-light">
             <tr>
-                <td colspan="5" style="text-align: center; padding: 2rem; color: #666;">
-                    No hay usuarios activos registrados.
-                </td>
+                <th class="py-3"><i class="fa-solid fa-user me-2"></i>Nombre y Apellido</th>
+                <th class="py-3"><i class="fa-solid fa-envelope me-2"></i>Correo Electrónico</th>
+                <th class="py-3"><i class="fa-solid fa-id-badge me-2"></i>Rol</th>
+                <th class="py-3 text-center">Estado</th>
+                <th class="py-3 text-center">Acciones</th>
             </tr>
-        <?php else: ?>
-            <?php foreach ($users as $user): ?>
+        </thead>
+        <tbody>
+            <?php if (empty($users)): ?>
                 <tr>
-                    <td><?= htmlspecialchars($user->firstName . ' ' . $user->lastName) ?></td>
-                    <td><?= htmlspecialchars($user->email) ?></td>
-                    <td>
-                        <span class="role-badge">
-                            <?= strtoupper($user->role) ?>
-                        </span>
-                    </td>
-                    <td>
-                        <span style="color: #27ae60; font-weight: bold;">
-                            <i class="fa-solid fa-circle-check"></i> Activo
-                        </span>
-                    </td>
-                    <td style="text-align: center;">
-                        <a href="<?= BASE_URL ?>users/reset/<?= $user->id ?>" 
-                            class="btn-action btn-reset" 
-                            title="Generar nueva clave temporal"
-                            onclick="return confirm('¿Estás seguro de resetear la contraseña de este usuario?')">
-                            <i class="fa-solid fa-key"></i>
-                        </a>
-
-                        <?php if ($user->id !== $_SESSION['user_id']): ?>
-                            <a href="<?= BASE_URL ?>users/delete/<?= $user->id ?>" 
-                                class="btn-action btn-deactivate" 
-                                title="Inhabilitar usuario"
-                                onclick="return confirm('¿Deseas inhabilitar a este usuario? Ya no podrá acceder al sistema.')">
-                                <i class="fa-solid fa-user-slash"></i>
-                            </a>
-                        <?php else: ?>
-                            <span title="No puedes desactivarte a ti mismo" style="color: #ccc; cursor: not-allowed;">
-                                <i class="fa-solid fa-user-lock"></i>
-                            </span>
-                        <?php endif; ?>
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        <i class="fa-solid fa-folder-open fa-3x mb-3 d-block"></i>
+                        No hay usuarios activos registrados.
                     </td>
                 </tr>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </tbody>
-</table>
+            <?php else: ?>
+                <?php foreach ($users as $user): ?>
+                    <tr>
+                        <td class="fw-semibold"><?= htmlspecialchars($user->firstName . ' ' . $user->lastName) ?></td>
+                        <td><?= htmlspecialchars($user->email) ?></td>
+                        <td>
+                            <?php if ($user->role === 'super_admin'): ?>
+                                <span class="badge rounded-pill badge-super-admin px-3">
+                                    <i class="fa-solid fa-crown me-1"></i> SUPER_ADMIN
+                                </span>
+                            <?php else: ?>
+                                <span class="badge rounded-pill bg-secondary px-3">
+                                    ADMIN
+                                </span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-3">
+                                <i class="fa-solid fa-circle-check me-1"></i> Activo
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="<?= BASE_URL ?>users/reset/<?= $user->id ?>" 
+                                    class="btn btn-sm btn-warning shadow-sm" 
+                                    title="Resetear clave"
+                                    onclick="return confirm('¿Estás seguro de resetear la contraseña?')">
+                                    <i class="fa-solid fa-key"></i>
+                                </a>
+
+                                <?php if ($user->id !== $_SESSION['user_id']): ?>
+                                    <a href="<?= BASE_URL ?>users/delete/<?= $user->id ?>" 
+                                        class="btn btn-sm btn-danger shadow-sm" 
+                                        title="Inhabilitar"
+                                        onclick="return confirm('¿Deseas inhabilitar a este usuario?')">
+                                        <i class="fa-solid fa-user-slash"></i>
+                                    </a>
+                                <?php else: ?>
+                                    <button class="btn btn-sm btn-light border" disabled title="No puedes desactivarte a ti mismo">
+                                        <i class="fa-solid fa-user-lock"></i>
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
